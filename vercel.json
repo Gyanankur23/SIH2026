@@ -7,10 +7,6 @@
       "config": {
         "distDir": "dist"
       }
-    },
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -35,13 +31,5 @@
       "memory": 1024,
       "maxDuration": 30
     }
-  },
-  "env": {
-    "DATABASE_URL": "@database_url",
-    "OPENWEATHER_API_KEY": "@openweather_api_key",
-    "SENTINEL_HUB_API_KEY": "@sentinel_hub_api_key",
-    "SENTINEL_HUB_CLIENT_ID": "@sentinel_hub_client_id",
-    "SENTINEL_HUB_CLIENT_SECRET": "@sentinel_hub_client_secret",
-    "NODE_ENV": "production"
   }
 }

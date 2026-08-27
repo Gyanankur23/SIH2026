@@ -26,7 +26,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const token = localStorage.getItem('auth_token');
     const userData = localStorage.getItem('user_data');
     if (token && userData) {
-      setUser(JSON.parse(userData));
+      try {
+        setUser(JSON.parse(userData));
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+      }
     }
     setIsLoading(false);
   }, []);

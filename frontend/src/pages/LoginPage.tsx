@@ -24,6 +24,7 @@ const LoginPage = () => {
         localStorage.setItem('auth_token', 'demo-token-' + Date.now());
         localStorage.setItem('user_data', JSON.stringify(demoUser));
         
+        // Navigate to officer dashboard
         window.location.href = '/#/officer-dashboard';
       } else if (email === 'farmer@gmail.com' && password === '54321') {
         const demoUser = {
@@ -36,6 +37,7 @@ const LoginPage = () => {
         localStorage.setItem('auth_token', 'demo-token-' + Date.now());
         localStorage.setItem('user_data', JSON.stringify(demoUser));
         
+        // Navigate to farmer dashboard
         window.location.href = '/#/farmer-dashboard';
       } else {
         setError('Invalid credentials. Please use the demo accounts.');

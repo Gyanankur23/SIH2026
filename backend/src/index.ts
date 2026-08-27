@@ -72,4 +72,5 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-export { app, prisma };
+// Export for Vercel serverless functions
+export default app;

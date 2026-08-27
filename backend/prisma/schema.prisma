@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator typescript {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Farmer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  location  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  plots     Plot[]
+}
+
+model Plot {
+  id           String   @id @default(cuid())
+  name         String
+  farmerId     String
+  farmer       Farmer   @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+  location     String
+  coordinates  Json     // Store polygon coordinates as GeoJSON
+  cropType     String
+  area         Float    // in hectares
+  soilType     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  alerts       Alert[]
+  historicalData HistoricalData[]
+}
+
+model Alert {
+  id           String   @id @default(cuid())
+  plotId       String
+  plot         Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  type         String
+  severity     String   // low, medium, high, critical
+  message      String
+  recommendation String
+  ndvi         Float?
+  timestamp    DateTime @default(now())
+  resolved     Boolean  @default(false)
+  resolvedAt   DateTime?
+}
+
+model HistoricalData {
+  id           String   @id @default(cuid())
+  plotId       String
+  plot         Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  date         DateTime
+  ndvi         Float
+  rainfall     Float?
+  temperature  Float?
+  humidity     Float?
+  satelliteProvider String? // sentinel-2, landsat, etc.
+  imageUrl     String?
+  createdAt    DateTime @default(now())
+  
+  @@unique([plotId, date])
+}
+
+enum CropType {
+  WHEAT
+  RICE
+  COTTON
+  SUGARCANE
+  SOYBEAN
+  MAIZE
+  TOMATO
+  POTATO
+  OTHER
+}
+
+enum AlertType {
+  MOISTURE_STRESS
+  WEATHER_ALERT
+  NUTRIENT_DEFICIENCY
+  PEST_INFESTATION
+  DISEASE_RISK
+  GROWTH_ANOMALY
+  FLOOD_RISK
+  DROUGHT_RISK
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}

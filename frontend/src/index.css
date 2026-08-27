@@ -4,29 +4,29 @@
 
 @layer base {
   body {
-    @apply bg-earth-50 text-earth-800 antialiased;
+    @apply bg-gray-50 text-gray-800 antialiased;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display text-earth-900;
+    @apply text-gray-900;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-leaf-600 hover:bg-leaf-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
+    @apply bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
   }
   
   .btn-secondary {
-    @apply bg-soil-600 hover:bg-soil-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
   }
   
   .card {
-    @apply bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 border border-earth-200;
+    @apply bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200;
   }
   
   .input-field {
-    @apply w-full px-4 py-2 border border-earth-300 rounded-lg focus:ring-2 focus:ring-leaf-500 focus:border-transparent transition-all duration-200;
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200;
   }
   
   .alert-card {
@@ -34,19 +34,19 @@
   }
   
   .alert-low {
-    @apply border-risk-low;
+    @apply border-green-500;
   }
   
   .alert-medium {
-    @apply border-risk-medium;
+    @apply border-yellow-500;
   }
   
   .alert-high {
-    @apply border-risk-high;
+    @apply border-orange-500;
   }
   
   .alert-critical {
-    @apply border-risk-critical;
+    @apply border-red-500;
   }
 }
 

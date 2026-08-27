@@ -3,12 +3,12 @@ import { useAuth } from '../contexts/AuthContext';
 
 const Navigation = () => {
   const location = useLocation();
-  const { logout, isAuthenticated } = useAuth();
+  const { logout, isAuthenticated, user } = useAuth();
   
   const navItems = [
     { path: '/', label: 'Home' },
-    { path: '/farmer-dashboard', label: 'Farmer Dashboard', protected: true },
-    { path: '/officer-dashboard', label: 'Officer Dashboard', protected: true },
+    { path: '/farmer-dashboard', label: 'Farmer Dashboard', protected: true, role: 'farmer' },
+    { path: '/officer-dashboard', label: 'Officer Dashboard', protected: true, role: 'officer' },
     { path: '/alerts', label: 'Alerts', protected: true },
   ];
 
@@ -35,6 +35,7 @@ const Navigation = () => {
           <div className="hidden md:flex items-center space-x-1">
             {navItems.map((item) => {
               if (item.protected && !isAuthenticated) return null;
+              if (item.role && user?.role !== item.role) return null;
               
               return (
                 <Link
@@ -78,6 +79,7 @@ const Navigation = () => {
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => {
               if (item.protected && !isAuthenticated) return null;
+              if (item.role && user?.role !== item.role) return null;
               
               return (
                 <Link

@@ -5,6 +5,7 @@ import { alertAPI } from '../services/api';
 
 const OfficerDashboard = () => {
   const { isAuthenticated } = useAuth();
+  const [user, setUser] = useState<any>(null);
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
   const [riskFilter, setRiskFilter] = useState<string>('all');
   const [plots, setPlots] = useState<any[]>([]);
@@ -14,6 +15,12 @@ const OfficerDashboard = () => {
 
   useEffect(() => {
     if (!isAuthenticated) return;
+    
+    const userData = localStorage.getItem('user_data');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+    
     loadOfficerData();
   }, [isAuthenticated, selectedRegion, riskFilter]);
 
@@ -131,7 +138,7 @@ const OfficerDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Officer Dashboard</h1>
-          <p className="text-gray-600">Regional monitoring and risk prioritization for agricultural officers</p>
+          <p className="text-gray-600">Welcome, {user?.name || 'Officer'} - Regional monitoring and risk prioritization</p>
         </div>
 
         <div className="bg-white rounded-lg shadow p-4 mb-6 flex flex-wrap gap-4 items-center">

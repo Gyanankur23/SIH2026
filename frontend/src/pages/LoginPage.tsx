@@ -12,23 +12,33 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // For demo purposes, allow any login with demo credentials
-      if (email && password) {
-        // Simulate login response
+      // Demo credentials
+      if (email === 'officer@gmail.com' && password === '12345') {
         const demoUser = {
-          id: 'demo-user-123',
-          name: email.split('@')[0],
+          id: 'officer-user-123',
+          name: 'Officer User',
           email: email,
-          role: email.includes('officer') ? 'officer' : 'farmer'
+          role: 'officer'
         };
         
         localStorage.setItem('auth_token', 'demo-token-' + Date.now());
         localStorage.setItem('user_data', JSON.stringify(demoUser));
         
-        // Reload to trigger auth context update
+        window.location.href = '/#/officer-dashboard';
+      } else if (email === 'farmer@gmail.com' && password === '54321') {
+        const demoUser = {
+          id: 'farmer-user-456',
+          name: 'Farmer User',
+          email: email,
+          role: 'farmer'
+        };
+        
+        localStorage.setItem('auth_token', 'demo-token-' + Date.now());
+        localStorage.setItem('user_data', JSON.stringify(demoUser));
+        
         window.location.href = '/#/farmer-dashboard';
       } else {
-        setError('Please enter email and password');
+        setError('Invalid credentials. Please use the demo accounts.');
       }
     } catch (err) {
       setError('Login failed. Please try again.');
@@ -87,10 +97,13 @@ const LoginPage = () => {
 
         <div className="mt-6 text-center">
           <p className="text-gray-600 text-sm">
-            Demo: Use any email/password combination
+            Demo Accounts
           </p>
           <p className="text-gray-500 text-xs mt-2">
-            Include 'officer' in email for officer dashboard access
+            Officer: officer@gmail.com / 12345
+          </p>
+          <p className="text-gray-500 text-xs">
+            Farmer: farmer@gmail.com / 54321
           </p>
         </div>
       </div>

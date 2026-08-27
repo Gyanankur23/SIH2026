@@ -5,7 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { plotAPI, alertAPI, analysisAPI } from '../services/api';
 
 const FarmerDashboard = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'register' | 'analysis'>('overview');
   const [selectedPlot, setSelectedPlot] = useState<any>(null);
   const [plots, setPlots] = useState<any[]>([]);
@@ -24,8 +25,14 @@ const FarmerDashboard = () => {
 
   useEffect(() => {
     if (!isAuthenticated) return;
+    
+    const userData = localStorage.getItem('user_data');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+    
     loadFarmerData();
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated]);
 
   const loadFarmerData = async () => {
     try {
@@ -155,7 +162,7 @@ const FarmerDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Farmer Dashboard</h1>
-          <p className="text-gray-600">Monitor your crop health and receive early warnings</p>
+          <p className="text-gray-600">Welcome, {user?.name || 'Farmer'} - Monitor your crop health and receive early warnings</p>
         </div>
 
         <div className="flex space-x-1 mb-6 bg-white rounded-lg p-1 shadow-sm">

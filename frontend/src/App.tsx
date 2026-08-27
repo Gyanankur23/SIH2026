@@ -19,7 +19,7 @@ function App() {
             <Route 
               path="/farmer-dashboard" 
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRole="farmer">
                   <FarmerDashboard />
                 </ProtectedRoute>
               } 
@@ -27,7 +27,7 @@ function App() {
             <Route 
               path="/officer-dashboard" 
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRole="officer">
                   <OfficerDashboard />
                 </ProtectedRoute>
               } 
@@ -47,8 +47,8 @@ function App() {
   );
 }
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
+function ProtectedRoute({ children, allowedRole }: { children: React.ReactNode, allowedRole?: string }) {
+  const { isAuthenticated, isLoading, user } = useAuth();
   
   if (isLoading) {
     return <div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>;
@@ -56,6 +56,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+  
+  if (allowedRole && user?.role !== allowedRole) {
+    // Redirect to appropriate dashboard based on role
+    return <Navigate to={user?.role === 'officer' ? '/#/officer-dashboard' : '/#/farmer-dashboard'} replace />;
   }
   
   return <>{children}</>;

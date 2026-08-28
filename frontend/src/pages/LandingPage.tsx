@@ -91,16 +91,16 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold text-green-600 mb-2">10M+</div>
+              <div className="text-4xl font-bold text-green-600 mb-2">15+</div>
               <div className="text-gray-600">Hectares Monitored</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-blue-600 mb-2">50K+</div>
+              <div className="text-4xl font-bold text-blue-600 mb-2">5</div>
               <div className="text-gray-600">Farmers Served</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-yellow-600 mb-2">98%</div>
-              <div className="text-gray-600">Alert Accuracy</div>
+              <div className="text-4xl font-bold text-yellow-600 mb-2">6</div>
+              <div className="text-gray-600">Active Plots</div>
             </div>
             <div>
               <div className="text-4xl font-bold text-gray-600 mb-2">24/7</div>

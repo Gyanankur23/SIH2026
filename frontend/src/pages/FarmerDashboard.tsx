@@ -96,13 +96,19 @@ const FarmerDashboard = () => {
       satelliteImagery: {
         provider: 'NASA',
         imageUrl: null,
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
+        satellite: 'Landsat 8',
+        resolution: '30m',
+        cloudCover: '5%',
+        status: 'Processed'
       },
       weatherData: {
         temperature: 28,
         humidity: 65,
         rainfall: 12,
-        condition: 'Partly Cloudy'
+        condition: 'Partly Cloudy',
+        windSpeed: 12,
+        pressure: 1013
       },
       historicalData: Array.from({ length: 30 }, (_, i) => ({
         date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -539,16 +545,74 @@ const FarmerDashboard = () => {
                         </div>
                       </div>
 
-                      <div className="h-64 rounded-lg overflow-hidden border border-gray-300 bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center mb-6">
-                        <div className="text-center">
-                          <div className="w-12 h-12 bg-green-600/10 text-green-700 rounded-full flex items-center justify-center mx-auto mb-2">
-                            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 21a9 9 0 100-18 9 9 0 000 18z M12 7v5l3 3 M9 3h6" />
-                            </svg>
+                      <div className="rounded-lg overflow-hidden border border-gray-300 mb-6">
+                        <div className="h-64 bg-gradient-to-br from-green-900 via-green-700 to-green-500 relative overflow-hidden">
+                          {/* Animated NDVI Heatmap */}
+                          <div className="absolute inset-0 grid grid-cols-10 grid-rows-6 gap-1 p-2">
+                            {Array.from({ length: 60 }).map((_, i) => {
+                              const ndviValue = 0.3 + Math.random() * 0.5;
+                              const hue = ndviValue > 0.7 ? 120 : ndviValue > 0.5 ? 90 : ndviValue > 0.3 ? 60 : 30;
+                              const saturation = 70 + Math.random() * 30;
+                              const lightness = 30 + ndviValue * 40;
+                              return (
+                                <div
+                                  key={i}
+                                  className="rounded-sm transition-all duration-1000"
+                                  style={{
+                                    backgroundColor: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+                                    animation: `pulse 2s ease-in-out ${i * 0.1}s infinite`
+                                  }}
+                                />
+                              );
+                            })}
                           </div>
-                          <p className="text-gray-700 font-medium">Satellite Imagery</p>
-                          <p className="text-gray-600 text-sm">Provider: {analysisData.satelliteImagery?.provider || 'NASA'}</p>
-                          <p className="text-gray-500 text-xs mt-1">Date: {analysisData.satelliteImagery?.date || new Date().toISOString().split('T')[0]}</p>
+                          
+                          {/* Overlay with legend */}
+                          <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm rounded-lg p-3 text-white">
+                            <p className="text-xs font-bold mb-2">NDVI Health Map</p>
+                            <div className="flex items-center gap-2 text-xs">
+                              <div className="w-4 h-3 bg-red-500 rounded"></div>
+                              <span>Poor</span>
+                              <div className="w-4 h-3 bg-yellow-500 rounded"></div>
+                              <span>Moderate</span>
+                              <div className="w-4 h-3 bg-green-500 rounded"></div>
+                              <span>Good</span>
+                            </div>
+                          </div>
+
+                          {/* Current NDVI badge */}
+                          <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-4 py-2">
+                            <p className="text-xs text-gray-600">Current NDVI</p>
+                            <p className="text-lg font-bold text-green-600">{(analysisData.currentNDVI || 0.65).toFixed(3)}</p>
+                          </div>
+                        </div>
+                        <div className="bg-white p-4 border-t border-gray-200">
+                          <div className="grid grid-cols-3 gap-3 text-sm">
+                            <div className="text-center">
+                              <p className="text-gray-500 text-xs">Analysis Type</p>
+                              <p className="text-gray-800 font-medium">NDVI Heatmap</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-gray-500 text-xs">Resolution</p>
+                              <p className="text-gray-800 font-medium">10m/pixel</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-gray-500 text-xs">Coverage</p>
+                              <p className="text-gray-800 font-medium">100%</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-gray-500 text-xs">Data Source</p>
+                              <p className="text-gray-800 font-medium">Synthetic NDVI</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-gray-500 text-xs">Date</p>
+                              <p className="text-gray-800 font-medium">{new Date().toISOString().split('T')[0]}</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-gray-500 text-xs">Status</p>
+                              <p className="text-gray-800 font-medium">Live Analysis</p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </>
@@ -585,7 +649,7 @@ const FarmerDashboard = () => {
                 <div className="bg-white rounded-lg shadow p-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-4">Weather Data</h2>
                   {analysisData?.weatherData ? (
-                    <div className="grid grid-cols-4 gap-4">
+                    <div className="grid grid-cols-5 gap-4">
                       <div className="text-center p-4 bg-blue-50 rounded-lg">
                         <p className="text-gray-600 text-sm">Temperature</p>
                         <p className="text-2xl font-bold text-gray-900">{analysisData.weatherData.temperature || analysisData.weatherData.current?.temperature || 'N/A'}°C</p>
@@ -601,6 +665,10 @@ const FarmerDashboard = () => {
                       <div className="text-center p-4 bg-yellow-50 rounded-lg">
                         <p className="text-gray-600 text-sm">Condition</p>
                         <p className="text-lg font-bold text-gray-900">{analysisData.weatherData.condition || analysisData.weatherData.current?.condition || 'N/A'}</p>
+                      </div>
+                      <div className="text-center p-4 bg-purple-50 rounded-lg">
+                        <p className="text-gray-600 text-sm">Wind Speed</p>
+                        <p className="text-2xl font-bold text-gray-900">{analysisData.weatherData.windSpeed || 'N/A'} km/h</p>
                       </div>
                     </div>
                   ) : (

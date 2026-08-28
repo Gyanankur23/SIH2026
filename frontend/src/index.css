@@ -63,3 +63,12 @@
     @apply bg-white/80 backdrop-blur-sm;
   }
 }
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}

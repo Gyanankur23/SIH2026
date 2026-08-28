@@ -64,8 +64,13 @@ const OfficerDashboard = () => {
         setTimeout(() => reject(new Error('Request timeout')), 10000)
       );
 
+      const filters: any = { limit: 50, resolved: false };
+      if (user?.region && user.region !== 'All Maharashtra') {
+        filters.region = user.region;
+      }
+      
       const alertsResponse = await Promise.race([
-        alertAPI.getAll({ limit: 50, resolved: false }), 
+        alertAPI.getAll(filters), 
         timeoutPromise
       ]);
       
@@ -79,20 +84,10 @@ const OfficerDashboard = () => {
         return;
       }
       
-      // Filter alerts by officer's region
-      const officerRegion = user?.region;
-      let filteredAlerts = alertsData;
-      if (officerRegion && officerRegion !== 'All Maharashtra') {
-        filteredAlerts = alertsData.filter((alert: any) => {
-          const location = alert.plot?.location || '';
-          return location.includes(officerRegion);
-        });
-      }
-      
-      setAlerts(filteredAlerts);
+      setAlerts(alertsData);
 
       // Extract unique plots from alerts
-      const uniquePlots = filteredAlerts.reduce((acc: any[], alert: any) => {
+      const uniquePlots = alertsData.reduce((acc: any[], alert: any) => {
         if (!acc.find((p: any) => p.id === alert.plotId)) {
           acc.push({
             id: alert.plotId,
@@ -111,7 +106,7 @@ const OfficerDashboard = () => {
       let filteredPlots = uniquePlots;
       if (riskFilter !== 'all') {
         filteredPlots = uniquePlots.filter((plot: any) => {
-          const plotAlerts = filteredAlerts.filter((a: any) => a.plotId === plot.id);
+          const plotAlerts = alertsData.filter((a: any) => a.plotId === plot.id);
           const highestSeverity = plotAlerts.length > 0 ? 
             plotAlerts.reduce((max: string, a: any) => 
               a.severity === 'critical' ? 'critical' : 

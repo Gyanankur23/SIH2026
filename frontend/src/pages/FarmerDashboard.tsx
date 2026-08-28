@@ -52,7 +52,7 @@ const FarmerDashboard = () => {
 
       const [plotsResponse, alertsResponse] = await Promise.all([
         Promise.race([plotAPI.getByFarmer(parsedUser.id), timeoutPromise]),
-        Promise.race([alertAPI.getAll({ limit: 10, resolved: false }), timeoutPromise])
+        Promise.race([alertAPI.getByFarmer(parsedUser.id, { limit: 10, resolved: false }), timeoutPromise])
       ]);
 
       const plotsData = (plotsResponse as any).data || [];

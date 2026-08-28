@@ -49,11 +49,19 @@ export const alertAPI = {
     if (filters?.resolved !== undefined) params.append('resolved', filters.resolved.toString());
     return api.get(`/alerts/plot/${plotId}?${params.toString()}`);
   },
+  getByFarmer: (farmerId: string, filters?: any) => {
+    const params = new URLSearchParams();
+    if (filters?.severity) params.append('severity', filters.severity);
+    if (filters?.resolved !== undefined) params.append('resolved', filters.resolved.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    return api.get(`/alerts/farmer/${farmerId}?${params.toString()}`);
+  },
   getAll: (filters?: any) => {
     const params = new URLSearchParams();
     if (filters?.severity) params.append('severity', filters.severity);
     if (filters?.resolved !== undefined) params.append('resolved', filters.resolved.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.region) params.append('region', filters.region);
     return api.get(`/alerts?${params.toString()}`);
   },
   resolve: (id: string) => api.put(`/alerts/${id}/resolve`),

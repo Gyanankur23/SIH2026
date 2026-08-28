@@ -21,13 +21,30 @@ const AlertsPage = () => {
       setLoading(true);
       setError(null);
 
+      const userData = localStorage.getItem('user_data');
+      if (!userData) return;
+      
+      const user = JSON.parse(userData);
       const filters: any = {};
       if (filter !== 'all') {
         filters.severity = filter;
       }
       filters.limit = 100;
 
-      const response = await alertAPI.getAll(filters);
+      let response;
+      if (user.role === 'farmer') {
+        // Farmer: get only their alerts
+        response = await alertAPI.getByFarmer(user.id, filters);
+      } else if (user.role === 'officer') {
+        // Officer: get alerts in their region
+        if (user.region && user.region !== 'All Maharashtra') {
+          filters.region = user.region;
+        }
+        response = await alertAPI.getAll(filters);
+      } else {
+        response = await alertAPI.getAll(filters);
+      }
+
       const alertsData = response.data || [];
       
       // Check if data is an array

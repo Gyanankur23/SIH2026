@@ -31,14 +31,36 @@ export class AlertController {
     }
   };
 
+  getFarmerAlerts = async (req: Request, res: Response) => {
+    try {
+      const { farmerId } = req.params;
+      const farmerIdStr = Array.isArray(farmerId) ? farmerId[0] : farmerId;
+      const { severity, resolved, limit } = req.query;
+      
+      const alerts = await this.alertService.getFarmerAlerts(farmerIdStr, {
+        severity: severity as string,
+        resolved: resolved === 'true' ? true : resolved === 'false' ? false : undefined,
+        limit: limit ? parseInt(limit as string) : undefined
+      });
+      
+      res.json(alerts);
+    } catch (error: any) {
+      console.error('Error fetching farmer alerts:', error);
+      res.status(500).json({
+        error: { message: 'Failed to fetch alerts', status: 500 }
+      });
+    }
+  };
+
   getAllAlerts = async (req: Request, res: Response) => {
     try {
-      const { severity, resolved, limit } = req.query;
+      const { severity, resolved, limit, region } = req.query;
       
       const alerts = await this.alertService.getAllAlerts({
         severity: severity as string,
         resolved: resolved === 'true' ? true : resolved === 'false' ? false : undefined,
-        limit: limit ? parseInt(limit as string) : undefined
+        limit: limit ? parseInt(limit as string) : undefined,
+        region: region as string
       });
       
       res.json(alerts);

@@ -7,7 +7,10 @@ const alertController = new AlertController();
 // Get alerts for a specific plot
 router.get('/plot/:plotId', alertController.getPlotAlerts);
 
-// Get all alerts (with filtering)
+// Get alerts for a specific farmer
+router.get('/farmer/:farmerId', alertController.getFarmerAlerts);
+
+// Get all alerts (with filtering by region for officers)
 router.get('/', alertController.getAllAlerts);
 
 // Mark alert as resolved

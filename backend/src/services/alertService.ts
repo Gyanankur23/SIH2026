@@ -6,6 +6,7 @@ interface AlertFilters {
   severity?: string;
   resolved?: boolean;
   limit?: number;
+  region?: string;
 }
 
 interface CreateAlertData {
@@ -46,6 +47,44 @@ export class AlertService {
     });
   }
 
+  async getFarmerAlerts(farmerId: string, filters: AlertFilters = {}) {
+    const where: any = {};
+    
+    if (filters.severity) {
+      where.severity = filters.severity.toUpperCase();
+    }
+    
+    if (filters.resolved !== undefined) {
+      where.resolved = filters.resolved;
+    }
+
+    // First get the farmer's plots
+    const farmerPlots = await prisma.plot.findMany({
+      where: { farmerId },
+      select: { id: true }
+    });
+
+    const plotIds = farmerPlots.map(p => p.id);
+    where.plotId = { in: plotIds };
+
+    return await prisma.alert.findMany({
+      where,
+      include: {
+        plot: {
+          select: {
+            id: true,
+            name: true,
+            location: true,
+            cropType: true,
+            farmerId: true
+          }
+        }
+      },
+      orderBy: { timestamp: 'desc' },
+      take: filters.limit || 100
+    });
+  }
+
   async getAllAlerts(filters: AlertFilters = {}) {
     const where: any = {};
     
@@ -55,6 +94,21 @@ export class AlertService {
     
     if (filters.resolved !== undefined) {
       where.resolved = filters.resolved;
+    }
+
+    // If region filter is provided, filter by plot location
+    if (filters.region && filters.region !== 'All Maharashtra') {
+      const plotsInRegion = await prisma.plot.findMany({
+        where: {
+          location: {
+            contains: filters.region
+          }
+        },
+        select: { id: true }
+      });
+      
+      const plotIds = plotsInRegion.map(p => p.id);
+      where.plotId = { in: plotIds };
     }
 
     return await prisma.alert.findMany({

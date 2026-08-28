@@ -14,12 +14,12 @@ const LandingPage = () => {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-sans font-bold text-gray-900 mb-6">
-              Satellite-Based Crop Health Monitoring
+              NDVI-Based Crop Health Monitoring
               <span className="block text-green-600">and Early Warning System</span>
             </h1>
             
             <p className="text-xl md:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Empowering farmers with real-time satellite imagery, AI-powered crop analysis, 
+              Empowering farmers with real-time NDVI heatmap visualization, vegetation index analysis, 
               and early warning alerts for proactive agricultural decision-making.
             </p>
             
@@ -51,12 +51,12 @@ const LandingPage = () => {
             <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-200 border border-gray-200">
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
                 <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-xs">S</span>
+                  <span className="text-white font-bold text-xs">N</span>
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Satellite Imagery</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">NDVI Heatmap</h3>
               <p className="text-gray-600">
-                Real-time monitoring using Sentinel-2 and Landsat data for precise crop health assessment.
+                Real-time vegetation index visualization with animated heatmap display for precise crop health assessment.
               </p>
             </div>
             
@@ -116,7 +116,7 @@ const LandingPage = () => {
             Ready to Transform Your Farm?
           </h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of farmers already using CropGuard to protect their crops and maximize yields.
+            Join farmers using CropGuard to monitor crop health with NDVI analysis and receive early warnings.
           </p>
           <Link
             to="/login"

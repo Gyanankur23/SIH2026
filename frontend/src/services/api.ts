@@ -34,9 +34,65 @@ api.interceptors.response.use(
   }
 );
 
+// Mock data for demo when backend is unavailable
+const mockPlots = [
+  {
+    id: 'plot-1',
+    name: 'North Field - Wheat',
+    location: 'Nashik, Maharashtra',
+    cropType: 'Wheat',
+    area: 2.5,
+    soilType: 'Black Soil',
+    health: 'Good',
+    ndvi: 0.75,
+    farmerId: 'demo-farmer-1',
+    coordinates: { type: 'Point', coordinates: [19.0, 73.79] }
+  },
+  {
+    id: 'plot-2',
+    name: 'South Field - Cotton',
+    location: 'Nashik, Maharashtra',
+    cropType: 'Cotton',
+    area: 1.8,
+    soilType: 'Red Soil',
+    health: 'Moderate',
+    ndvi: 0.62,
+    farmerId: 'demo-farmer-1',
+    coordinates: { type: 'Point', coordinates: [19.5, 73.8] }
+  }
+];
+
+const mockAlerts = [
+  {
+    id: 'alert-1',
+    plotId: 'plot-2',
+    type: 'MOISTURE_STRESS',
+    severity: 'medium',
+    message: 'Moderate moisture stress detected in South Field',
+    recommendation: 'Increase irrigation schedule by 20%',
+    ndvi: 0.62,
+    timestamp: new Date().toISOString(),
+    resolved: false,
+    plot: mockPlots[1]
+  },
+  {
+    id: 'alert-2',
+    plotId: 'plot-1',
+    type: 'WEATHER_ALERT',
+    severity: 'low',
+    message: 'Normal weather conditions expected for next 7 days',
+    recommendation: 'Continue current irrigation schedule',
+    ndvi: 0.75,
+    timestamp: new Date().toISOString(),
+    resolved: false,
+    plot: mockPlots[0]
+  }
+];
+
 export const plotAPI = {
   register: (data: any) => api.post('/plots/register', data),
-  getByFarmer: (farmerId: string) => api.get(`/plots/farmer/${farmerId}`),
+  getByFarmer: (farmerId: string) => 
+    api.get(`/plots/farmer/${farmerId}`).catch(() => ({ data: mockPlots })),
   getById: (id: string) => api.get(`/plots/${id}`),
   update: (id: string, data: any) => api.put(`/plots/${id}`, data),
   delete: (id: string) => api.delete(`/plots/${id}`),
@@ -49,13 +105,8 @@ export const alertAPI = {
     if (filters?.resolved !== undefined) params.append('resolved', filters.resolved.toString());
     return api.get(`/alerts/plot/${plotId}?${params.toString()}`);
   },
-  getAll: (filters?: any) => {
-    const params = new URLSearchParams();
-    if (filters?.severity) params.append('severity', filters.severity);
-    if (filters?.resolved !== undefined) params.append('resolved', filters.resolved.toString());
-    if (filters?.limit) params.append('limit', filters.limit.toString());
-    return api.get(`/alerts?${params.toString()}`);
-  },
+  getAll: (filters?: any) => 
+    api.get(`/alerts`, { params: filters }).catch(() => ({ data: mockAlerts })),
   resolve: (id: string) => api.put(`/alerts/${id}/resolve`),
   create: (data: any) => api.post('/alerts', data),
 };

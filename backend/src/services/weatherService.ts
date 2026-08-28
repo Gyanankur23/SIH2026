@@ -12,6 +12,7 @@ export class WeatherService {
   async getCurrentWeather(location: string) {
     try {
       if (!this.apiKey) {
+        console.log('OpenWeather API key not configured, using mock data');
         return this.getMockWeatherData(location);
       }
 

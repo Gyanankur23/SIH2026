@@ -24,8 +24,9 @@ const LoginPage = () => {
         localStorage.setItem('auth_token', 'demo-token-' + Date.now());
         localStorage.setItem('user_data', JSON.stringify(demoUser));
         
-        // Navigate to officer dashboard
-        window.location.href = '/#/officer-dashboard';
+        // Force page reload to trigger AuthContext update
+        window.location.hash = '#/officer-dashboard';
+        window.location.reload();
       } else if (email === 'farmer@gmail.com' && password === '54321') {
         const demoUser = {
           id: 'farmer-user-456',
@@ -37,8 +38,9 @@ const LoginPage = () => {
         localStorage.setItem('auth_token', 'demo-token-' + Date.now());
         localStorage.setItem('user_data', JSON.stringify(demoUser));
         
-        // Navigate to farmer dashboard
-        window.location.href = '/#/farmer-dashboard';
+        // Force page reload to trigger AuthContext update
+        window.location.hash = '#/farmer-dashboard';
+        window.location.reload();
       } else {
         setError('Invalid credentials. Please use the demo accounts.');
       }

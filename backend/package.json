@@ -11,7 +11,7 @@
     "prisma:migrate": "npx prisma migrate dev",
     "prisma:seed": "ts-node prisma/seed.ts",
     "prisma:studio": "npx prisma studio",
-    "postinstall": "prisma skills sync || exit 0"
+    "postinstall": "prisma generate || exit 0"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { authAPI } from '../services/api';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -12,40 +13,19 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // Demo credentials
-      if (email === 'officer@gmail.com' && password === '12345') {
-        const demoUser = {
-          id: 'officer-user-123',
-          name: 'Officer User',
-          email: email,
-          role: 'officer'
-        };
-        
-        localStorage.setItem('auth_token', 'demo-token-' + Date.now());
-        localStorage.setItem('user_data', JSON.stringify(demoUser));
-        
-        // Force page reload to trigger AuthContext update
-        window.location.hash = '#/officer-dashboard';
-        window.location.reload();
-      } else if (email === 'farmer@gmail.com' && password === '54321') {
-        const demoUser = {
-          id: 'farmer-user-456',
-          name: 'Farmer User',
-          email: email,
-          role: 'farmer'
-        };
-        
-        localStorage.setItem('auth_token', 'demo-token-' + Date.now());
-        localStorage.setItem('user_data', JSON.stringify(demoUser));
-        
-        // Force page reload to trigger AuthContext update
-        window.location.hash = '#/farmer-dashboard';
-        window.location.reload();
-      } else {
-        setError('Invalid credentials. Please use the demo accounts.');
-      }
-    } catch (err) {
-      setError('Login failed. Please try again.');
+      const response = await authAPI.login({ email, password });
+      
+      // Store JWT token and user data
+      localStorage.setItem('auth_token', response.data.token);
+      localStorage.setItem('user_data', JSON.stringify(response.data.user));
+      
+      // Redirect based on role
+      const dashboard = response.data.user.role === 'officer' ? 'officer-dashboard' : 'farmer-dashboard';
+      window.location.hash = `#/${dashboard}`;
+      window.location.reload();
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.response?.data?.error?.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -101,14 +81,38 @@ const LoginPage = () => {
 
         <div className="mt-6 text-center">
           <p className="text-gray-600 text-sm">
+            Don't have an account?{' '}
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = '#/signup';
+                window.location.reload();
+              }}
+              className="font-medium text-green-600 hover:text-green-500"
+            >
+              Sign up
+            </button>
+          </p>
+        </div>
+
+        <div className="mt-4 text-center">
+          <p className="text-gray-600 text-sm font-medium">
             Demo Accounts
           </p>
-          <p className="text-gray-500 text-xs mt-2">
-            Officer: officer@gmail.com / 12345
-          </p>
-          <p className="text-gray-500 text-xs">
-            Farmer: farmer@gmail.com / 54321
-          </p>
+          <div className="mt-3 space-y-2">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-gray-700 text-xs font-semibold">Officers</p>
+              <p className="text-gray-500 text-xs">officer@gmail.com / 12345</p>
+              <p className="text-gray-500 text-xs">officer2@gmail.com / 12345</p>
+              <p className="text-gray-500 text-xs">officer3@gmail.com / 12345</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-gray-700 text-xs font-semibold">Farmers</p>
+              <p className="text-gray-500 text-xs">farmer@gmail.com / 54321</p>
+              <p className="text-gray-500 text-xs">sunita.sharma@example.com / 54321</p>
+              <p className="text-gray-500 text-xs">vijay.kumar@example.com / 54321</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

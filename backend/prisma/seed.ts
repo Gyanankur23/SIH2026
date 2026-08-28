@@ -14,32 +14,39 @@ async function main() {
 
   console.log('Cleared existing data');
 
-  // Create sample farmers from Maharashtra
+  // Create demo farmers with IDs matching frontend login
   const farmers = await Promise.all([
+    // Demo account 1 - matches frontend login
     prisma.farmer.create({
       data: {
+        id: 'farmer-user-456',
         name: 'Ramesh Patil',
-        email: 'ramesh.patil@example.com',
+        email: 'farmer@gmail.com',
         phone: '+91 98765 43210',
         location: 'Nashik, Maharashtra'
       }
     }),
+    // Demo account 2
     prisma.farmer.create({
       data: {
+        id: 'farmer-demo-2',
         name: 'Sunita Sharma',
         email: 'sunita.sharma@example.com',
         phone: '+91 98765 43211',
         location: 'Nashik, Maharashtra'
       }
     }),
+    // Demo account 3
     prisma.farmer.create({
       data: {
+        id: 'farmer-demo-3',
         name: 'Vijay Kumar',
         email: 'vijay.kumar@example.com',
         phone: '+91 98765 43212',
         location: 'Pune, Maharashtra'
       }
     }),
+    // Additional farmers for demo
     prisma.farmer.create({
       data: {
         name: 'Anjali Deshmukh',
@@ -58,11 +65,11 @@ async function main() {
     })
   ]);
 
-  console.log(`Created ${farmers.length} farmers`);
+  console.log(`Created ${farmers.length} farmers including demo accounts`);
 
   // Create sample plots
   const plots = await Promise.all([
-    // Ramesh Patil's plots
+    // Demo farmer (Ramesh Patil) plots
     prisma.plot.create({
       data: {
         name: 'North Field - Wheat',

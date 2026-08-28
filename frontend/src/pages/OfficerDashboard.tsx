@@ -29,12 +29,16 @@ const OfficerDashboard = () => {
       setLoading(true);
       setError(null);
 
-      const alertsResponse = await alertAPI.getAll({ 
-        limit: 50, 
-        resolved: false 
-      });
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 10000)
+      );
+
+      const alertsResponse = await Promise.race([
+        alertAPI.getAll({ limit: 50, resolved: false }), 
+        timeoutPromise
+      ]);
       
-      const alertsData = alertsResponse.data || [];
+      const alertsData = (alertsResponse as any).data || [];
       
       // Check if alertsData is an array
       if (!Array.isArray(alertsData)) {
@@ -44,10 +48,20 @@ const OfficerDashboard = () => {
         return;
       }
       
-      setAlerts(alertsData);
+      // Filter alerts by officer's region
+      const officerRegion = user?.region;
+      let filteredAlerts = alertsData;
+      if (officerRegion && officerRegion !== 'All Maharashtra') {
+        filteredAlerts = alertsData.filter((alert: any) => {
+          const location = alert.plot?.location || '';
+          return location.includes(officerRegion);
+        });
+      }
+      
+      setAlerts(filteredAlerts);
 
       // Extract unique plots from alerts
-      const uniquePlots = alertsData.reduce((acc: any[], alert: any) => {
+      const uniquePlots = filteredAlerts.reduce((acc: any[], alert: any) => {
         if (!acc.find((p: any) => p.id === alert.plotId)) {
           acc.push({
             id: alert.plotId,
@@ -66,7 +80,7 @@ const OfficerDashboard = () => {
       let filteredPlots = uniquePlots;
       if (riskFilter !== 'all') {
         filteredPlots = uniquePlots.filter((plot: any) => {
-          const plotAlerts = alertsData.filter((a: any) => a.plotId === plot.id);
+          const plotAlerts = filteredAlerts.filter((a: any) => a.plotId === plot.id);
           const highestSeverity = plotAlerts.length > 0 ? 
             plotAlerts.reduce((max: string, a: any) => 
               a.severity === 'critical' ? 'critical' : 

@@ -27,7 +27,15 @@ const AlertsPage = () => {
       filters.limit = 100;
 
       const response = await alertAPI.getAll(filters);
-      setAlerts(response.data || []);
+      const alertsData = response.data || [];
+      
+      // Check if data is an array
+      if (!Array.isArray(alertsData)) {
+        console.error('Alerts data is not an array:', alertsData);
+        setAlerts([]);
+      } else {
+        setAlerts(alertsData);
+      }
     } catch (err) {
       console.error('Error loading alerts:', err);
       setError('Failed to load alerts. Please try again.');

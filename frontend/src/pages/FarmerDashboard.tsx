@@ -39,15 +39,34 @@ const FarmerDashboard = () => {
       setLoading(true);
       setError(null);
       
-      if (!user?.id) return;
+      const userData = localStorage.getItem('user_data');
+      if (!userData) return;
+      
+      const parsedUser = JSON.parse(userData);
+      if (!parsedUser.id) return;
 
       const [plotsResponse, alertsResponse] = await Promise.all([
-        plotAPI.getByFarmer(user.id),
+        plotAPI.getByFarmer(parsedUser.id),
         alertAPI.getAll({ limit: 10, resolved: false })
       ]);
 
-      setPlots(plotsResponse.data || []);
-      setAlerts(alertsResponse.data || []);
+      const plotsData = plotsResponse.data || [];
+      const alertsData = alertsResponse.data || [];
+      
+      // Check if data is arrays
+      if (!Array.isArray(plotsData)) {
+        console.error('Plots data is not an array:', plotsData);
+        setPlots([]);
+      } else {
+        setPlots(plotsData);
+      }
+      
+      if (!Array.isArray(alertsData)) {
+        console.error('Alerts data is not an array:', alertsData);
+        setAlerts([]);
+      } else {
+        setAlerts(alertsData);
+      }
     } catch (err) {
       console.error('Error loading farmer data:', err);
       setError('Failed to load data. Please try again.');

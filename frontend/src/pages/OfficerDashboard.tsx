@@ -35,6 +35,15 @@ const OfficerDashboard = () => {
       });
       
       const alertsData = alertsResponse.data || [];
+      
+      // Check if alertsData is an array
+      if (!Array.isArray(alertsData)) {
+        console.error('Alerts data is not an array:', alertsData);
+        setAlerts([]);
+        setPlots([]);
+        return;
+      }
+      
       setAlerts(alertsData);
 
       // Extract unique plots from alerts

@@ -15,12 +15,28 @@ model Farmer {
   id        String   @id @default(cuid())
   name      String
   email     String   @unique
+  password  String
   phone     String?
   location  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
   plots     Plot[]
+
+  @@index([email])
+}
+
+model Officer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  region    String
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
 }
 
 model Plot {
@@ -38,6 +54,9 @@ model Plot {
   
   alerts       Alert[]
   historicalData HistoricalData[]
+
+  @@index([farmerId])
+  @@index([cropType])
 }
 
 model Alert {
@@ -52,6 +71,10 @@ model Alert {
   timestamp    DateTime @default(now())
   resolved     Boolean  @default(false)
   resolvedAt   DateTime?
+
+  @@index([plotId])
+  @@index([severity])
+  @@index([timestamp])
 }
 
 model HistoricalData {
@@ -68,6 +91,8 @@ model HistoricalData {
   createdAt    DateTime @default(now())
   
   @@unique([plotId, date])
+  @@index([plotId])
+  @@index([date])
 }
 
 enum CropType {

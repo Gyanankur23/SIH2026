@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 import { NDVICalculator } from '../src/utils/ndviCalculator';
 
 const prisma = new PrismaClient();
@@ -11,8 +12,48 @@ async function main() {
   await prisma.historicalData.deleteMany();
   await prisma.plot.deleteMany();
   await prisma.farmer.deleteMany();
+  await prisma.officer.deleteMany();
 
   console.log('Cleared existing data');
+
+  const defaultFarmerPassword = await bcrypt.hash('54321', 10);
+  const defaultOfficerPassword = await bcrypt.hash('12345', 10);
+
+  // Seed demo officer accounts
+  const officers = await Promise.all([
+    prisma.officer.create({
+      data: {
+        id: 'officer-user-123',
+        name: 'Agricultural Officer',
+        email: 'officer@gmail.com',
+        password: defaultOfficerPassword,
+        region: 'Nashik',
+        phone: '+91 98765 00001'
+      }
+    }),
+    prisma.officer.create({
+      data: {
+        id: 'officer-user-124',
+        name: 'Regional Officer',
+        email: 'officer2@gmail.com',
+        password: defaultOfficerPassword,
+        region: 'Pune',
+        phone: '+91 98765 00002'
+      }
+    }),
+    prisma.officer.create({
+      data: {
+        id: 'officer-user-125',
+        name: 'District Officer',
+        email: 'officer3@gmail.com',
+        password: defaultOfficerPassword,
+        region: 'All Maharashtra',
+        phone: '+91 98765 00003'
+      }
+    })
+  ]);
+
+  console.log(`Created ${officers.length} demo officers`);
 
   // Create demo farmers with IDs matching frontend login
   const farmers = await Promise.all([
@@ -22,6 +63,7 @@ async function main() {
         id: 'farmer-user-456',
         name: 'Ramesh Patil',
         email: 'farmer@gmail.com',
+        password: defaultFarmerPassword,
         phone: '+91 98765 43210',
         location: 'Nashik, Maharashtra'
       }
@@ -32,6 +74,7 @@ async function main() {
         id: 'farmer-demo-2',
         name: 'Sunita Sharma',
         email: 'sunita.sharma@example.com',
+        password: defaultFarmerPassword,
         phone: '+91 98765 43211',
         location: 'Nashik, Maharashtra'
       }
@@ -42,6 +85,7 @@ async function main() {
         id: 'farmer-demo-3',
         name: 'Vijay Kumar',
         email: 'vijay.kumar@example.com',
+        password: defaultFarmerPassword,
         phone: '+91 98765 43212',
         location: 'Pune, Maharashtra'
       }
@@ -51,6 +95,7 @@ async function main() {
       data: {
         name: 'Anjali Deshmukh',
         email: 'anjali.deshmukh@example.com',
+        password: defaultFarmerPassword,
         phone: '+91 98765 43213',
         location: 'Ahmednagar, Maharashtra'
       }
@@ -59,6 +104,7 @@ async function main() {
       data: {
         name: 'Dilip Singh',
         email: 'dilip.singh@example.com',
+        password: defaultFarmerPassword,
         phone: '+91 98765 43214',
         location: 'Aurangabad, Maharashtra'
       }

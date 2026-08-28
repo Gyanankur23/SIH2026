@@ -1,38 +1,11 @@
 import { Router } from 'express';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
 
 const router = Router();
 const prisma = new PrismaClient();
-
-// Demo officer accounts (in production, these would be in a database)
-const OFFICER_ACCOUNTS = [
-  {
-    id: 'officer-user-123',
-    email: 'officer@gmail.com',
-    password: '12345',
-    name: 'Agricultural Officer',
-    role: 'officer',
-    region: 'Nashik'
-  },
-  {
-    id: 'officer-user-124',
-    email: 'officer2@gmail.com',
-    password: '12345',
-    name: 'Regional Officer',
-    role: 'officer',
-    region: 'Pune'
-  },
-  {
-    id: 'officer-user-125',
-    email: 'officer3@gmail.com',
-    password: '12345',
-    name: 'District Officer',
-    role: 'officer',
-    region: 'All Maharashtra'
-  }
-];
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-production';
 
@@ -46,34 +19,37 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
-    // Check officer accounts
-    const officer = OFFICER_ACCOUNTS.find(
-      acc => acc.email === email && acc.password === password
-    );
+    // Check officer accounts in database
+    const officer = await prisma.officer.findUnique({
+      where: { email }
+    });
 
     if (officer) {
-      const token = jwt.sign(
-        { 
-          id: officer.id, 
-          email: officer.email, 
-          role: officer.role,
-          name: officer.name,
-          region: officer.region
-        },
-        JWT_SECRET,
-        { expiresIn: '24h' }
-      );
+      const isPasswordValid = await bcrypt.compare(password, officer.password);
+      if (isPasswordValid) {
+        const token = jwt.sign(
+          { 
+            id: officer.id, 
+            email: officer.email, 
+            role: 'officer',
+            name: officer.name,
+            region: officer.region
+          },
+          JWT_SECRET,
+          { expiresIn: '24h' }
+        );
 
-      return res.json({
-        token,
-        user: {
-          id: officer.id,
-          email: officer.email,
-          role: officer.role,
-          name: officer.name,
-          region: officer.region
-        }
-      });
+        return res.json({
+          token,
+          user: {
+            id: officer.id,
+            email: officer.email,
+            role: 'officer',
+            name: officer.name,
+            region: officer.region
+          }
+        });
+      }
     }
 
     // Check farmer accounts in database
@@ -82,9 +58,8 @@ router.post('/login', async (req: Request, res: Response) => {
     });
 
     if (farmer) {
-      // For demo, accept the password if it matches the demo pattern
-      // In production, use bcrypt.compare
-      if (password === '54321') {
+      const isPasswordValid = await bcrypt.compare(password, farmer.password);
+      if (isPasswordValid) {
         const token = jwt.sign(
           { 
             id: farmer.id, 
@@ -121,7 +96,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
 router.post('/register', async (req: Request, res: Response) => {
   try {
-    const { name, email, phone, location, password, role } = req.body;
+    const { name, email, phone, location, password } = req.body;
 
     if (!name || !email || !location || !password) {
       return res.status(400).json({
@@ -140,11 +115,15 @@ router.post('/register', async (req: Request, res: Response) => {
       });
     }
 
+    // Hash password securely
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Create new farmer
     const newFarmer = await prisma.farmer.create({
       data: {
         name,
         email,
+        password: hashedPassword,
         phone: phone || null,
         location
       }

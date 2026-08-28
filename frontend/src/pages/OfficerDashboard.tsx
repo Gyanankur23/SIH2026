@@ -12,6 +12,37 @@ const OfficerDashboard = () => {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activePlotModal, setActivePlotModal] = useState<any | null>(null);
+  const [activeFarmerModal, setActiveFarmerModal] = useState<any | null>(null);
+
+  const handleExportReport = () => {
+    if (plots.length === 0) {
+      alert('No data available to export.');
+      return;
+    }
+
+    const headers = ['Plot Name', 'Farmer Name', 'Location', 'Crop Type', 'NDVI', 'Total Alerts'];
+    const rows = plots.map(p => {
+      const plotAlerts = alerts.filter(a => a.plotId === p.id);
+      return [
+        `"${p.name}"`,
+        `"${p.farmerName}"`,
+        `"${p.location}"`,
+        `"${p.cropType}"`,
+        p.ndvi.toFixed(2),
+        plotAlerts.length
+      ].join(',');
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `CropGuard_Regional_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -196,7 +227,10 @@ const OfficerDashboard = () => {
           </div>
 
           <div className="ml-auto">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+            <button 
+              onClick={handleExportReport}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium transition-colors duration-200"
+            >
               Export Report
             </button>
           </div>
@@ -375,10 +409,16 @@ const OfficerDashboard = () => {
                       </div>
 
                       <div className="flex space-x-2 mt-3">
-                        <button className="bg-green-600 text-white text-sm py-1 px-3 rounded hover:bg-green-700">
+                        <button 
+                          onClick={() => setActivePlotModal(plot)}
+                          className="bg-green-600 text-white text-sm py-1 px-3 rounded hover:bg-green-700 font-medium"
+                        >
                           View Details
                         </button>
-                        <button className="bg-blue-600 text-white text-sm py-1 px-3 rounded hover:bg-blue-700">
+                        <button 
+                          onClick={() => setActiveFarmerModal(plot)}
+                          className="bg-blue-600 text-white text-sm py-1 px-3 rounded hover:bg-blue-700 font-medium"
+                        >
                           Contact Farmer
                         </button>
                       </div>
@@ -414,6 +454,86 @@ const OfficerDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Plot Details Modal */}
+      {activePlotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl relative">
+            <button 
+              onClick={() => setActivePlotModal(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold"
+            >
+              &times;
+            </button>
+            <h3 className="text-xl font-bold text-gray-900 mb-1">{activePlotModal.name}</h3>
+            <p className="text-sm text-gray-500 mb-4">{activePlotModal.location} &bull; Farmer: {activePlotModal.farmerName}</p>
+            <div className="space-y-3 text-sm text-gray-700">
+              <div className="p-3 bg-gray-50 rounded-lg grid grid-cols-2 gap-2">
+                <div><span className="font-semibold">Crop Type:</span> {activePlotModal.cropType}</div>
+                <div><span className="font-semibold">NDVI Index:</span> {activePlotModal.ndvi.toFixed(2)}</div>
+                <div><span className="font-semibold">Farmer ID:</span> {activePlotModal.farmerId}</div>
+                <div><span className="font-semibold">Plot ID:</span> {activePlotModal.id}</div>
+              </div>
+              <div className="mt-4">
+                <h4 className="font-bold text-gray-900 mb-2">Active Alerts on Plot:</h4>
+                {alerts.filter(a => a.plotId === activePlotModal.id).map(a => (
+                  <div key={a.id} className="p-3 mb-2 bg-red-50 border-l-4 border-red-500 rounded">
+                    <p className="font-bold text-red-900 text-xs uppercase">{a.type} ({a.severity})</p>
+                    <p className="text-xs text-red-800 mt-1">{a.message}</p>
+                    {a.recommendation && (
+                      <p className="text-xs font-medium text-red-900 mt-1">Recommendation: {a.recommendation}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button 
+                onClick={() => setActivePlotModal(null)}
+                className="bg-gray-800 text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-900 font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contact Farmer Modal */}
+      {activeFarmerModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl relative">
+            <button 
+              onClick={() => setActiveFarmerModal(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold"
+            >
+              &times;
+            </button>
+            <h3 className="text-xl font-bold text-gray-900 mb-1">Contact Farmer</h3>
+            <p className="text-sm text-gray-500 mb-4">{activeFarmerModal.farmerName}</p>
+            <div className="space-y-3 text-sm text-gray-700 bg-blue-50 p-4 rounded-lg">
+              <p><span className="font-semibold">Farmer:</span> {activeFarmerModal.farmerName}</p>
+              <p><span className="font-semibold">Location:</span> {activeFarmerModal.location}</p>
+              <p><span className="font-semibold">Plot:</span> {activeFarmerModal.name}</p>
+              <p><span className="font-semibold">Phone:</span> +91 98765 43210 (Demo Contact)</p>
+            </div>
+            <div className="mt-6 flex space-x-3 justify-end">
+              <a
+                href="tel:+919876543210"
+                className="bg-green-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-green-700 font-medium inline-block text-center"
+              >
+                Call Farmer
+              </a>
+              <button 
+                onClick={() => setActiveFarmerModal(null)}
+                className="bg-gray-200 text-gray-800 text-sm px-4 py-2 rounded-lg hover:bg-gray-300 font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

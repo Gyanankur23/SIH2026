@@ -9,6 +9,7 @@ const AlertsPage = () => {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedAlertModal, setSelectedAlertModal] = useState<any | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -34,7 +35,19 @@ const AlertsPage = () => {
         console.error('Alerts data is not an array:', alertsData);
         setAlerts([]);
       } else {
-        setAlerts(alertsData);
+        let filteredByTime = alertsData;
+        const now = Date.now();
+        if (timeRange === '24h') {
+          const cutoff = new Date(now - 24 * 60 * 60 * 1000);
+          filteredByTime = alertsData.filter((a: any) => new Date(a.timestamp) >= cutoff);
+        } else if (timeRange === '7d') {
+          const cutoff = new Date(now - 7 * 24 * 60 * 60 * 1000);
+          filteredByTime = alertsData.filter((a: any) => new Date(a.timestamp) >= cutoff);
+        } else if (timeRange === '30d') {
+          const cutoff = new Date(now - 30 * 24 * 60 * 60 * 1000);
+          filteredByTime = alertsData.filter((a: any) => new Date(a.timestamp) >= cutoff);
+        }
+        setAlerts(filteredByTime);
       }
     } catch (err) {
       console.error('Error loading alerts:', err);
@@ -288,12 +301,15 @@ const AlertsPage = () => {
                     <span>Plot ID: <span className="font-medium text-xs">{alert.plotId}</span></span>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="bg-green-600 text-white text-sm py-1 px-3 rounded hover:bg-green-700">
+                    <button 
+                      onClick={() => setSelectedAlertModal(alert)}
+                      className="bg-green-600 text-white text-sm py-1 px-3 rounded hover:bg-green-700 font-medium"
+                    >
                       View Details
                     </button>
                     <button 
                       onClick={() => handleAlertResolve(alert.id)}
-                      className="bg-blue-600 text-white text-sm py-1 px-3 rounded hover:bg-blue-700"
+                      className="bg-blue-600 text-white text-sm py-1 px-3 rounded hover:bg-blue-700 font-medium"
                     >
                       Mark Resolved
                     </button>
@@ -303,34 +319,65 @@ const AlertsPage = () => {
             ))
           )}
         </div>
+      </div>
 
-        <div className="bg-white rounded-lg shadow p-6 mt-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Notification Settings</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg">
-              <input type="checkbox" className="w-5 h-5 text-green-600 rounded" defaultChecked />
-              <div>
-                <p className="font-medium text-gray-900">SMS Alerts</p>
-                <p className="text-sm text-gray-600">Receive critical alerts via SMS</p>
+      {/* Alert Details Modal */}
+      {selectedAlertModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl relative">
+            <button 
+              onClick={() => setSelectedAlertModal(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold"
+            >
+              &times;
+            </button>
+            <div className="flex items-center space-x-2 mb-2">
+              <h3 className="text-xl font-bold text-gray-900">{getTypeLabel(selectedAlertModal.type)}</h3>
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityBadge(selectedAlertModal.severity)}`}>
+                {selectedAlertModal.severity}
+              </span>
+            </div>
+            <p className="text-sm text-gray-500 mb-4">
+              Plot: {selectedAlertModal.plot?.name || 'Unknown'} &bull; {selectedAlertModal.plot?.location || 'Unknown Location'}
+            </p>
+
+            <div className="space-y-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm font-semibold text-gray-700 mb-1">Issue Description:</p>
+                <p className="text-sm text-gray-900">{selectedAlertModal.message}</p>
+              </div>
+
+              <div className="bg-green-50 p-4 rounded-lg">
+                <p className="text-sm font-semibold text-green-900 mb-1">Recommended Action:</p>
+                <p className="text-sm text-green-800">{selectedAlertModal.recommendation || 'No specific action provided'}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                <div><span className="font-semibold">Recorded NDVI:</span> {selectedAlertModal.ndvi?.toFixed(2) || 'N/A'}</div>
+                <div><span className="font-semibold">Timestamp:</span> {formatDate(selectedAlertModal.timestamp)}</div>
               </div>
             </div>
-            <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg">
-              <input type="checkbox" className="w-5 h-5 text-green-600 rounded" defaultChecked />
-              <div>
-                <p className="font-medium text-gray-900">WhatsApp Notifications</p>
-                <p className="text-sm text-gray-600">Get alerts on WhatsApp</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg">
-              <input type="checkbox" className="w-5 h-5 text-green-600 rounded" defaultChecked />
-              <div>
-                <p className="font-medium text-gray-900">Email Digest</p>
-                <p className="text-sm text-gray-600">Daily summary via email</p>
-              </div>
+
+            <div className="mt-6 flex justify-end space-x-2">
+              <button 
+                onClick={() => {
+                  handleAlertResolve(selectedAlertModal.id);
+                  setSelectedAlertModal(null);
+                }}
+                className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 font-medium"
+              >
+                Resolve Alert
+              </button>
+              <button 
+                onClick={() => setSelectedAlertModal(null)}
+                className="bg-gray-800 text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-900 font-medium"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

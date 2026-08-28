@@ -6,6 +6,7 @@ import plotRoutes from './routes/plotRoutes';
 import alertRoutes from './routes/alertRoutes';
 import analysisRoutes from './routes/analysisRoutes';
 import reportRoutes from './routes/reportRoutes';
+import authRoutes from './routes/authRoutes';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/plots', plotRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/analysis', analysisRoutes);

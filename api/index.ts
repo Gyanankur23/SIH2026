@@ -1,4 +1,4 @@
-import { app } from '../backend/src/index';
+import app from '../backend/src/index';
 
 // Vercel serverless function entry point
 export default async function(req: any, res: any) {

@@ -62,7 +62,7 @@ function ProtectedRoute({ children, allowedRole }: { children: React.ReactNode, 
   
   if (allowedRole && user?.role !== allowedRole) {
     // Redirect to appropriate dashboard based on role
-    return <Navigate to={user?.role === 'officer' ? '/#/officer-dashboard' : '/#/farmer-dashboard'} replace />;
+    return <Navigate to={user?.role === 'officer' ? '/officer-dashboard' : '/farmer-dashboard'} replace />;
   }
   
   return <>{children}</>;

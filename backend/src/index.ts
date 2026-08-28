@@ -76,4 +76,5 @@ process.on('SIGINT', async () => {
 });
 
 // Export for Vercel serverless functions
+export { app };
 export default app;

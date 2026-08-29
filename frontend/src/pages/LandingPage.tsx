@@ -14,7 +14,7 @@ const LandingPage = () => {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-sans font-bold text-gray-900 mb-6">
-              NDVI-Based Crop Health Monitoring
+              Satellite & NDVI-Based Crop Health Monitoring
               <span className="block text-green-600">and Early Warning System</span>
             </h1>
             
